@@ -1,0 +1,13 @@
+venv
+build
+dist
+*.egg-info
+.env
+
+*.swp
+*.swo
+
+# By default do not include these files for version control
+# Override this by using 'git add -f'
+*.wav
+*.mp3
