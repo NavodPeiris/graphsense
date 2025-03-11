@@ -250,6 +250,8 @@ class GraphTrain:
                 pickle.dump(pca, file)
             txt_embeddings_for_faiss = reduced_txt_embeddings.astype(np.float16)
         else:
+            print(f"Warning: PCA model can't be trained as vocabulary is less than {vectors_for_faiss.shape[1]}")
+            print(f"Warning: OOV code lines will not be supported during inference")
             txt_embeddings_for_faiss = txt_embeddings.astype(np.float16)
 
         print(txt_embeddings_for_faiss.shape)
@@ -390,7 +392,7 @@ class GraphInfer:
             with open('output/artifacts/pca_model.pkl', 'rb') as file:
                 self.loaded_pca = pickle.load(file)
         except FileNotFoundError:
-            print("The PCA model file was not found. Ensure it is available for OOV handling")
+            print("The PCA model file was not found. Ensure it is available for OOV handling\nIf voabulary is too small, PCA model does not get created")
 
 
     # Function to track execution time and peak RAM usage
@@ -403,7 +405,7 @@ class GraphInfer:
             top_k (int): top k suggestions to return (default: 10)
         """
 
-        if self.index == None or self.idx_to_line == None or self.line_to_idx == None or self.txt_embed_index == None or self.txt_embed_model == None or self.loaded_pca == None:
+        if self.index == None or self.idx_to_line == None or self.line_to_idx == None or self.txt_embed_index == None or self.txt_embed_model == None:
             print("Please load artifacts first using: load_artifacts()")
             sys.exit(1)
 
@@ -416,23 +418,27 @@ class GraphInfer:
             print(f"Index: {query_index}")
         else:
             print("Line not found")
-            # handle OOV
-            oov_vector = self.txt_embed_model.encode(line)
-            # Reshape to (1, dim), Faiss expects a 2D array for a single query
-            oov_vector = np.expand_dims(oov_vector, axis=0)
+            try:
+                # handle OOV
+                oov_vector = self.txt_embed_model.encode(line)
+                # Reshape to (1, dim), Faiss expects a 2D array for a single query
+                oov_vector = np.expand_dims(oov_vector, axis=0)
 
-            oov_vector = self.loaded_pca.transform(oov_vector) # reduce dimensions to 128
-            
-            oov_vector = oov_vector.astype(np.float16)
+                oov_vector = self.loaded_pca.transform(oov_vector) # reduce dimensions to 128
+                
+                oov_vector = oov_vector.astype(np.float16)
 
-            # Perform FAISS search
-            distances, indices = self.txt_embed_index.search(oov_vector, 1)
-            # Retrieve syntactically matching line
-            matched_line = self.idx_to_line.get(struct.pack("i", indices[0][0])).decode()
-            print("oov matched to: ", matched_line)
-            query_index = indices[0][0]
-            query_index = int(query_index)
-            print(f"Matched Index: {query_index}")
+                # Perform FAISS search
+                distances, indices = self.txt_embed_index.search(oov_vector, 1)
+                # Retrieve syntactically matching line
+                matched_line = self.idx_to_line.get(struct.pack("i", indices[0][0])).decode()
+                print("oov matched to: ", matched_line)
+                query_index = indices[0][0]
+                query_index = int(query_index)
+                print(f"Matched Index: {query_index}")
+            except Exception:
+                print("Error: ensure PCA model is in output/artifacts. If model was not created due to low vocabulary size, increase unique code lines in dataset and train again.")
+                return []
         
         # Load vector dynamically using index to minimize memory usage
         query_vector = np.array([self.index.reconstruct(query_index)], dtype=np.float16)  # Dynamically load vector using FAISS

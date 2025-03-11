@@ -5,7 +5,7 @@ with open("library.md", "r") as f:
 
 setup(
     name="graphsense",
-    version="0.0.2",  
+    version="0.0.3",  
     description="GraphSense is a framework that can be used to easily train and use code suggestion models with minimal data preprocessing and resource consumption",
     packages=find_packages(),
     long_description=long_description,
