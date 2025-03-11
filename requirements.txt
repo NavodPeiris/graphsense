@@ -1,4 +1,9 @@
-pandas
-networkx
-node2vec
+numpy
+pecanpy
 gensim
+onnxruntime
+onnxruntime-gpu
+scikit-learn
+faiss-cpu
+rocksdb-py
+light_embed

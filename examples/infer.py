@@ -1,8 +1,9 @@
-from graphsense import GraphSense
+from graphsense import GraphInfer
 
-g = GraphSense()
+g = GraphInfer()
 
-g.load_model("output/graph_embeddings.model")
-next = g.infer("def factorial(n):")
+g.load_artifacts()  # load the artifacts to memory
+suggestions = g.infer("def factorial(n):")
+g.unload_artifacts()  # clean memory
 
-print("next item predicted: ", next)
+print("top 10 suggestions: ", suggestions)

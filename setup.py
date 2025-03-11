@@ -5,8 +5,8 @@ with open("library.md", "r") as f:
 
 setup(
     name="graphsense",
-    version="0.0.1",  
-    description="graphsense is a library to train and infer graph embedding based code completion models",
+    version="0.0.2",  
+    description="GraphSense is a framework that can be used to easily train and use code suggestion models with minimal data preprocessing and resource consumption",
     packages=find_packages(),
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -19,6 +19,6 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Operating System :: OS Independent",
     ],
-    install_requires=["pandas", "networkx", "node2vec", "gensim"],
+    install_requires=["numpy", "pecanpy", "gensim", "onnxruntime", "onnxruntime-gpu", "scikit-learn", "faiss-cpu", "rocksdb-py", "light_embed"],
     python_requires=">=3.8",
 )

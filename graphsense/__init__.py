@@ -1,3 +1,4 @@
 from .graphsense import(
-    GraphSense
+    GraphTrain,
+    GraphInfer
 )

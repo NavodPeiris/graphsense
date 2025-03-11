@@ -1,5 +1,5 @@
-from graphsense import GraphSense
+from graphsense import GraphTrain
 
-g = GraphSense()
-
-g.line_completion(input_path="code_files", output_path="output")
+g = GraphTrain()
+# train the model
+g.line_completion(directory_path="code_files", language="Python")
